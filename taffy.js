@@ -49,6 +49,9 @@ var TAFFY, exports, T;
     cmax    = 1000;
     API     = {};
 
+    // var idRegex = /[t][0-9]*[r][0-9]*/i;
+    var idRegex = /.*/i;
+
     sortArgs = function(args) {
       var v = Array.prototype.slice.call(args);
       return v.sort();
@@ -175,7 +178,7 @@ var TAFFY, exports, T;
     isIndexable = function ( f ) {
       var i;
       // Check to see if record ID
-      if ( T.isString( f ) && /[t][0-9]*[r][0-9]*/i.test( f ) ){
+      if ( T.isString( f ) && idRegex.test( f ) ){
         return true;
       }
       // Check to see if record
@@ -250,7 +253,7 @@ var TAFFY, exports, T;
       // * a TaffyDB record to see if the record matches a query
       // ****************************************  
       var nf = [];
-      if ( T.isString( f ) && /[t][0-9]*[r][0-9]*/i.test( f ) ){
+      if ( T.isString( f ) && idRegex.test( f ) ){
         f = { ___id : f };
       }
       if ( T.isArray( f ) ){
@@ -1231,7 +1234,7 @@ var TAFFY, exports, T;
 
         each( indexes, function ( f ) {
           // Check to see if record ID
-          if ( T.isString( f ) && /[t][0-9]*[r][0-9]*/i.test( f ) &&
+          if ( T.isString( f ) && idRegex.test( f ) &&
             TOb[ID[f]] )
           {
             records.push( TOb[ID[f]] );
@@ -1332,9 +1335,14 @@ var TAFFY, exports, T;
               v = o;
             }
 
-            RC++;
-            v.___id = 'T' + String( idpad + TC ).slice( -6 ) + 'R' +
-              String( idpad + RC ).slice( -6 );
+            if (!v.___id) {
+              // Only set id if it's not already set.
+              // This allows the client to pre-set it's own unique id that makes
+              // sense to the application.
+              RC++;
+              v.___id = 'T' + String( idpad + TC ).slice( -6 ) + 'R' +
+                String( idpad + RC ).slice( -6 );
+            }
             v.___s = true;
             records.push( v.___id );
             if ( settings.template ){
